@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habiba_Ruhi // Portfolio</title>
+
+    <!-- PDF LIBRARY -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #80dfff; 
+            --bg: #03070b;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --font: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: var(--font);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #0a192f 0%, #03070b 100%);
+        }
+
+        nav {
+            position: sticky; top: 0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.5rem 10%;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .logo { font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+
+        .nav-links button, .nav-links a {
+            background: none; border: none; color: rgba(255,255,255,0.5);
+            margin-left: 1.5rem; cursor: pointer;
+            font-weight: 600; text-transform: uppercase; font-size: 0.7rem;
+            transition: 0.3s; letter-spacing: 1px; text-decoration: none;
+        }
+
+        .nav-links button:hover, .nav-links a:hover { color: var(--primary); }
+
+        main { padding: 4rem 10%; max-width: 1200px; margin: 0 auto; }
+
+        #content-host { transition: 0.5s ease; }
+
+        h1 { font-size: 3.5rem; margin-bottom: 1.5rem; font-weight: 200; }
+        h1 span { color: var(--primary); font-weight: 800; }
+
+        .hero { height: 50vh; display: flex; flex-direction: column; justify-content: center; }
+
+        .btn-action {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            background: rgba(128, 223, 255, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-action:hover {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .skill-tag {
+            padding: 1.2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 20px;
+        }
+
+        .timeline {
+            border-left: 1px solid var(--border);
+            padding-left: 2rem;
+        }
+
+        .timeline-item {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -2.35rem;
+            top: 0.5rem;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .contact-box {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .contact-link {
+            color: var(--primary);
+            font-size: 1.5rem;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+    <div class="logo">Ruhi_Protfolio</div>
+    <div class="nav-links">
+        <button onclick="render('home')">Home</button>
+        <button onclick="render('about')">About</button>
+        <button onclick="render('skills')">Skills</button>
+        <button onclick="render('work')">Projects</button>
+        <button onclick="render('experience')">Experience</button>
+        <button onclick="render('contact')">Contact</button>
+        <a href="#" onclick="downloadCV()">Get CV ↓</a>
+    </div>
+</nav>
+
+<main>
+    <div id="content-host"></div>
+</main>
+
+<script>
+const CONFIG = {
+    email: "banuhabeeba07@gmail.com",
+    phone: "+91 9876543210",
+    name: "Habiba Ruhi",
+    role: "Web Developer"
+};
+
+const data = {
+    home: {
+        title: "Hi I am <span>Habiba Ruhi</span>.",
+        desc: "I am a passionate web developer creating modern websites."
+    },
+    about: "Aspiring developer focused on building clean, efficient, and scalable web applications.Eager to contribute to innovative projects and master new technologies. Focused on Web Development since 2024",
+    skills: ["HTML", "CSS", "JavaScript", "Flask", "Node.js"],
+    work: [
+        { title: "Portfolio", desc: "Personal portfolio website", tag: "Web" },
+        { title: "Typing Test", desc: "Speed test app", tag: "App" }
+    ],
+    experience: [
+        { role: "Web Developer", company: "Tech Industries", date: "2024 - Present" },
+        { role: "Intern", company: "Startup", date: "2022 - 2024" }
+    ]
+};
+
+/* ✅ PDF DOWNLOAD FUNCTION */
+function downloadCV() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // ===== HEADER =====
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text(CONFIG.name, 20, 20);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text(CONFIG.role, 20, 30);
+
+    // ===== LINE =====
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+
+    // ===== CONTACT =====
+    doc.setFontSize(12);
+    doc.text("Email: " + CONFIG.email, 20, 45);
+    doc.text("Phone: " + CONFIG.phone, 20, 52);
+
+    // ===== SKILLS BOX =====
+    doc.setFont("helvetica", "bold");
+    doc.text("Skills", 20, 70);
+
+    doc.setFont("helvetica", "normal");
+    let skillsText = data.skills.join(" | ");
+    doc.text(skillsText, 20, 78);
+
+    // ===== EXPERIENCE =====
+    doc.setFont("helvetica", "bold");
+    doc.text("Experience", 20, 95);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("• Web Developer - Tech Industries (2024 - Present)", 20, 105);
+    doc.text("• Intern - Startup Company (2022 - 2024)", 20, 113);
+
+    // ===== PROJECTS =====
+    doc.setFont("helvetica", "bold");
+    doc.text("Projects", 20, 130);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("• Portfolio Website", 20, 140);
+    doc.text("• Typing Test App", 20, 148);
+
+    // ===== FOOTER =====
+    doc.setFontSize(10);
+    doc.text("Generated via Portfolio Website", 20, 280);
+
+    doc.save(CONFIG.name + "_Professional_Resume.pdf");
+}
+
+/* ROUTING */
+function render(section) {
+    const host = document.getElementById('content-host');
+    host.classList.add('hidden');
+
+    setTimeout(() => {
+        if (section === 'home') {
+            host.innerHTML = `
+                <div class="hero">
+                    <h1>${data.home.title}</h1>
+                    <p>${data.home.desc}</p>
+                    <button onclick="downloadCV()" class="btn-action">Download CV</button>
+                </div>`;
+        }
+
+        else if (section === 'about') {
+            host.innerHTML = `<h1>About</h1><p>${data.about}</p>`;
+        }
+
+        else if (section === 'skills') {
+            host.innerHTML = `
+                <h1>Skills</h1>
+                <div class="skills-container">
+                    ${data.skills.map(s => `<div class="skill-tag">${s}</div>`).join('')}
+                </div>`;
+        }
+
+        else if (section === 'work') {
+            host.innerHTML = `
+                <h1>Projects</h1>
+                <div class="project-grid">
+                    ${data.work.map(p => `
+                        <div class="card">
+                            <h3>${p.title}</h3>
+                            <p>${p.desc}</p>
+                            <small>${p.tag}</small>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        else if (section === 'experience') {
+            host.innerHTML = `
+                <h1>Experience</h1>
+                <div class="timeline">
+                    ${data.experience.map(e => `
+                        <div class="timeline-item">
+                            <strong>${e.date}</strong>
+                            <h3>${e.role}</h3>
+                            <p>${e.company}</p>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        else if (section === 'contact') {
+            host.innerHTML = `
+                <h1>Contact</h1>
+                <div class="contact-box">
+                    <a class="contact-link" href="mailto:${CONFIG.email}">${CONFIG.email}</a>
+                    <a class="contact-link" href="tel:${CONFIG.phone}">${CONFIG.phone}</a>
+                    <button onclick="downloadCV()" class="btn-action">Export CV</button>
+                </div>`;
+        }
+
+        host.classList.remove('hidden');
+    }, 300);
+}
+
+render('home');
+</script>
+
+</body>
+</html>
